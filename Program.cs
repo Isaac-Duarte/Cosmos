@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Cosmos.Enums;
 using Cosmos.Models;
 using GSXApi;
+using GSXApi.ApiCalls;
 using GSXApi.Models;
 using Newtonsoft.Json;
 using Serilog;
@@ -24,7 +25,7 @@ namespace Cosmos
             }
             catch (Exception e)
             {
-                _logger.Error($"Unexcepted error. {e.Message}");
+                _logger.Fatal($"Unexcepted error. {e.Message}");
                 return;
             }
             
@@ -35,13 +36,17 @@ namespace Cosmos
             // Check basic validation.
             if (_config.GSXConfiguration.AuthConfiguration.CertPassword == null)
             {
-                _logger.Error("Unforunatly cannot validate certification bundles. Please configure them.\nNote check the COSMOS_CONFIG_PATH Enviorment variable to see path for the configuration.");
+                _logger.Fatal("Unforunatly cannot validate certification bundles. Please configure them.\nNote check the COSMOS_CONFIG_PATH Enviorment variable to see path for the configuration.");
                 return;
             }
 
             _logger.Information("Cosmos started. Authenticating with GSX");
 
             GSXApiClient client = new GSXApiClient(_config.GSXConfiguration);
+
+            var response = await client.GetExampleAsync();
+
+            _logger.Information($"{response.FirstName} secret is {response.Secret}");
         }
 
         /// <summary>
